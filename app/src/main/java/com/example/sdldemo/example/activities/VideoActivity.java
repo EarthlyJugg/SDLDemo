@@ -64,7 +64,6 @@ public class VideoActivity extends AppCompatActivity implements TracksFragment.I
     private DrawerLayout mDrawerLayout;
     private ViewGroup mRightDrawer;
 
-    private Settings mSettings;
     private boolean mBackPressed;
 
     public static Intent newIntent(Context context, String videoPath, String videoTitle) {
@@ -83,50 +82,49 @@ public class VideoActivity extends AppCompatActivity implements TracksFragment.I
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        mSettings = new Settings(this);
 
         // handle arguments
         mVideoPath = getIntent().getStringExtra("videoPath");
 
         Intent intent = getIntent();
         String intentAction = intent.getAction();
-        if (!TextUtils.isEmpty(intentAction)) {
-            if (intentAction.equals(Intent.ACTION_VIEW)) {
-                mVideoPath = intent.getDataString();
-            } else if (intentAction.equals(Intent.ACTION_SEND)) {
-                mVideoUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    String scheme = mVideoUri.getScheme();
-                    if (TextUtils.isEmpty(scheme)) {
-                        Log.e(TAG, "Null unknown scheme\n");
-                        finish();
-                        return;
-                    }
-                    if (scheme.equals(ContentResolver.SCHEME_ANDROID_RESOURCE)) {
-                        mVideoPath = mVideoUri.getPath();
-                    } else if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
-                        Log.e(TAG, "Can not resolve content below Android-ICS\n");
-                        finish();
-                        return;
-                    } else {
-                        Log.e(TAG, "Unknown scheme " + scheme + "\n");
-                        finish();
-                        return;
-                    }
-                }
-            }
-        }
+//        if (!TextUtils.isEmpty(intentAction)) {
+//            if (intentAction.equals(Intent.ACTION_VIEW)) {
+//                mVideoPath = intent.getDataString();
+//            } else if (intentAction.equals(Intent.ACTION_SEND)) {
+//                mVideoUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+//                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+//                    String scheme = mVideoUri.getScheme();
+//                    if (TextUtils.isEmpty(scheme)) {
+//                        Log.e(TAG, "Null unknown scheme\n");
+//                        finish();
+//                        return;
+//                    }
+//                    if (scheme.equals(ContentResolver.SCHEME_ANDROID_RESOURCE)) {
+//                        mVideoPath = mVideoUri.getPath();
+//                    } else if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+//                        Log.e(TAG, "Can not resolve content below Android-ICS\n");
+//                        finish();
+//                        return;
+//                    } else {
+//                        Log.e(TAG, "Unknown scheme " + scheme + "\n");
+//                        finish();
+//                        return;
+//                    }
+//                }
+//            }
+//        }
 
-        if (!TextUtils.isEmpty(mVideoPath)) {
-            new RecentMediaStorage(this).saveUrlAsync(mVideoPath);
-        }
+//        if (!TextUtils.isEmpty(mVideoPath)) {
+//            new RecentMediaStorage(this).saveUrlAsync(mVideoPath);
+//        }
 
         // init UI
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
-        mMediaController = new AndroidMediaController(this, false);
+        mMediaController = new AndroidMediaController(this, true);
         mMediaController.setSupportActionBar(actionBar);
 
         mToastTextView = (TextView) findViewById(R.id.toast_text_view);
@@ -154,6 +152,7 @@ public class VideoActivity extends AppCompatActivity implements TracksFragment.I
             return;
         }
         mVideoView.start();
+
     }
 
     @Override

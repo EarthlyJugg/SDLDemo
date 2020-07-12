@@ -107,8 +107,9 @@ public class InfoHudViewHolder {
                 case MSG_UPDATE_HUD: {
                     InfoHudViewHolder holder = InfoHudViewHolder.this;
                     IjkMediaPlayer mp = null;
-                    if (mMediaPlayer == null)
+                    if (mMediaPlayer == null) {
                         break;
+                    }
                     if (mMediaPlayer instanceof IjkMediaPlayer) {
                         mp = (IjkMediaPlayer) mMediaPlayer;
                     } else if (mMediaPlayer instanceof MediaPlayerProxy) {
@@ -117,8 +118,9 @@ public class InfoHudViewHolder {
                         if (internal != null && internal instanceof IjkMediaPlayer)
                             mp = (IjkMediaPlayer) internal;
                     }
-                    if (mp == null)
+                    if (mp == null) {
                         break;
+                    }
 
                     int vdec = mp.getVideoDecoder();
                     switch (vdec) {

@@ -10,7 +10,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0099cc">
+        android:background="#000000">
 
         <com.example.sdldemo.example.widget.media.IjkVideoView
             android:id="@+id/video_view"
@@ -21,11 +21,11 @@
         <TextView
             android:id="@+id/toast_text_view"
             android:layout_width="wrap_content"
-            android:text="toast_text_view"
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
             android:background="@color/ijk_transparent_dark"
             android:padding="16dp"
+            android:text="toast_text_view"
             android:textSize="16sp"
             android:visibility="visible" />
 
@@ -35,7 +35,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right|center_vertical"
             android:background="@color/ijk_transparent_dark"
-            android:padding="8dp" />
+            android:padding="8dp"
+            android:visibility="gone" />
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"

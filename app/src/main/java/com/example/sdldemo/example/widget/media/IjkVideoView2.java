@@ -64,8 +64,7 @@ import tv.danmaku.ijk.media.player.misc.IMediaFormat;
 import tv.danmaku.ijk.media.player.misc.ITrackInfo;
 import tv.danmaku.ijk.media.player.misc.IjkMediaFormat;
 
-
-public class IjkVideoView extends FrameLayout implements MediaController.MediaPlayerControl {
+public class IjkVideoView2 extends FrameLayout implements MediaController.MediaPlayerControl {
     private String TAG = "IjkVideoView";
     // settable by the client
     private Uri mUri;
@@ -87,14 +86,16 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     private int mCurrentState = STATE_IDLE;
     private int mTargetState = STATE_IDLE;
 
-
+    // All the stuff we need for playing and showing a video
+    private IRenderView.ISurfaceHolder mSurfaceHolder = null;
+    private IMediaPlayer mMediaPlayer = null;
     // private int         mAudioSession;
     private int mVideoWidth;
     private int mVideoHeight;
     private int mSurfaceWidth;
     private int mSurfaceHeight;
     private int mVideoRotationDegree;
-
+    private IMediaController mMediaController;
     private IMediaPlayer.OnCompletionListener mOnCompletionListener;
     private IMediaPlayer.OnPreparedListener mOnPreparedListener;
     private int mCurrentBufferPercentage;
@@ -102,8 +103,8 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     private IMediaPlayer.OnInfoListener mOnInfoListener;
     private int mSeekWhenPrepared;  // recording the seek position while preparing
     private boolean mCanPause = true;
-    private boolean mCanSeekBack = true;//是否可以后退
-    private boolean mCanSeekForward = true;//是否可以前进
+    private boolean mCanSeekBack = true;
+    private boolean mCanSeekForward = true;
 
     /** Subtitle rendering widget overlaid on top of the video. */
     // private RenderingWidget mSubtitleWidget;
@@ -115,28 +116,11 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
     private Context mAppContext;
     private Settings mSettings;
+    private IRenderView mRenderView;
     private int mVideoSarNum;
     private int mVideoSarDen;
 
-    // All the stuff we need for playing and showing a video
-    private IRenderView.ISurfaceHolder mSurfaceHolder = null;
-
-    /**
-     * 真正播放的类，默认实现为 IjkMediaPlayer {@link IjkMediaPlayer}
-     */
-    private IMediaPlayer mMediaPlayer = null;
-
-    /**
-     * 相当于控制面板，面板中的按钮点击回调到 MediaController.MediaPlayerControl，也就是当前上下文
-     */
-    private IMediaController mMediaController;
-    //面板信息的展示
     private InfoHudViewHolder mHudViewHolder;
-    /**
-     * 渲染器，控制视频宽高，旋转角度，实现类默认为 {@link SurfaceRenderView}
-     */
-    private IRenderView mRenderView;
-
 
     private long mPrepareStartTime = 0;
     private long mPrepareEndTime = 0;
@@ -144,24 +128,26 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     private long mSeekStartTime = 0;
     private long mSeekEndTime = 0;
 
+    //标题
+    private TextView subtitleDisplay;
 
-    public IjkVideoView(Context context) {
+    public IjkVideoView2(Context context) {
         super(context);
         initVideoView(context);
     }
 
-    public IjkVideoView(Context context, AttributeSet attrs) {
+    public IjkVideoView2(Context context, AttributeSet attrs) {
         super(context, attrs);
         initVideoView(context);
     }
 
-    public IjkVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public IjkVideoView2(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initVideoView(context);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public IjkVideoView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public IjkVideoView2(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initVideoView(context);
     }
@@ -191,6 +177,14 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         mCurrentState = STATE_IDLE;
         mTargetState = STATE_IDLE;
 
+        subtitleDisplay = new TextView(context);
+        subtitleDisplay.setTextSize(24);
+        subtitleDisplay.setGravity(Gravity.CENTER);
+        LayoutParams layoutParams_txt = new LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM);
+        addView(subtitleDisplay, layoutParams_txt);
     }
 
     /**
@@ -218,7 +212,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             LogUtil.d("lingtao", "IjkVideoView->setRenderView():" + "宽高大于0");
             renderView.setVideoSize(mVideoWidth, mVideoHeight);
         }
-
         if (mVideoSarNum > 0 && mVideoSarDen > 0) {
             LogUtil.d("lingtao", "IjkVideoView->setRenderView():" + "num or den > 0");
             renderView.setVideoSampleAspectRatio(mVideoSarNum, mVideoSarDen);
@@ -364,6 +357,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             mMediaPlayer.setOnInfoListener(mInfoListener);
             mMediaPlayer.setOnBufferingUpdateListener(mBufferingUpdateListener);
             mMediaPlayer.setOnSeekCompleteListener(mSeekCompleteListener);
+            mMediaPlayer.setOnTimedTextListener(mOnTimedTextListener);
             mCurrentBufferPercentage = 0;
             String scheme = mUri.getScheme();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&//23
@@ -646,6 +640,15 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         }
     };
 
+    private IMediaPlayer.OnTimedTextListener mOnTimedTextListener = new IMediaPlayer.OnTimedTextListener() {
+        @Override
+        public void onTimedText(IMediaPlayer mp, IjkTimedText text) {
+            LogUtil.d("lingtaoListener", "IjkVideoView->onTimedText():" + text.getText());
+            if (text != null) {
+                subtitleDisplay.setText(text.getText());
+            }
+        }
+    };
 
     /**
      * Register a callback to be invoked when the media file
@@ -714,8 +717,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             mSurfaceHeight = h;
             boolean isValidState = (mTargetState == STATE_PLAYING);
             boolean hasValidSize = !mRenderView.shouldWaitForResize() || (mVideoWidth == w && mVideoHeight == h);
-            LogUtil.d("lingtao", "IjkVideoView->onSurfaceChanged():" +
-                    "isValidState=" + isValidState + ",hasValidSize=" + hasValidSize + ",mSeekWhenPrepared=" + mSeekWhenPrepared);
             if (mMediaPlayer != null && isValidState && hasValidSize) {
                 if (mSeekWhenPrepared != 0) {
                     seekTo(mSeekWhenPrepared);
@@ -879,6 +880,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         if (isInPlaybackState()) {
             return (int) mMediaPlayer.getDuration();
         }
+
         return -1;
     }
 
@@ -892,7 +894,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
     @Override
     public void seekTo(int msec) {
-        LogUtil.d("lingtao", "IjkVideoView->seekTo():" + msec + ",isInPlaybackState()=" + isInPlaybackState());
         if (isInPlaybackState()) {
             mSeekStartTime = System.currentTimeMillis();
             mMediaPlayer.seekTo(msec);
@@ -970,9 +971,8 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         mCurrentAspectRatioIndex %= s_allAspectRatio.length;
 
         mCurrentAspectRatio = s_allAspectRatio[mCurrentAspectRatioIndex];
-        if (mRenderView != null) {
+        if (mRenderView != null)
             mRenderView.setAspectRatio(mCurrentAspectRatio);
-        }
         return mCurrentAspectRatio;
     }
 
@@ -981,7 +981,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     //-------------------------
     public static final int RENDER_NONE = 0;//不渲染
     public static final int RENDER_SURFACE_VIEW = 1;//渲染surface
-    public static final int RENDER_TEXTURE_VIEW = 2;//渲染TEXTURE
+    public static final int RENDER_TEXTURE_VIEW = 2;//渲染纹理
 
     //渲染
     private List<Integer> mAllRenders = new ArrayList<Integer>();
@@ -1075,7 +1075,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
     /**
      * 创建播放器
-     *
      * @param playerType
      * @return
      */
@@ -1101,6 +1100,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                 if (mUri != null) {
                     ijkMediaPlayer = new IjkMediaPlayer();
                     ijkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG);
+
                     if (mSettings.getUsingMediaCodec()) {
                         LogUtil.d("lingtao2", "IjkVideoView->createPlayer():" + "getUsingMediaCodec");
                         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 1);

@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.sdldemo"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -50,7 +50,7 @@ dependencies {
 
     // Other ABIs: optional
 //    implementation 'tv.danmaku.ijk.media:ijkplayer-armv5:0.8.8'
-//    implementation 'tv.danmaku.ijk.media:ijkplayer-arm64:0.8.8'
+    implementation 'tv.danmaku.ijk.media:ijkplayer-arm64:0.8.8'
     implementation 'tv.danmaku.ijk.media:ijkplayer-x86:0.8.8'
 //    implementation 'tv.danmaku.ijk.media:ijkplayer-x86_64:0.8.8'
 

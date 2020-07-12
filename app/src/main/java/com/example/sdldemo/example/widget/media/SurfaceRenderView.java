@@ -33,6 +33,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.sdldemo.util.LogUtil;
+
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -104,7 +106,7 @@ public class SurfaceRenderView extends SurfaceView implements IRenderView {
 
     @Override
     public void setVideoRotation(int degree) {
-        Log.e("", "SurfaceView doesn't support rotation (" + degree + ")!\n");
+        LogUtil.d("lingtao", "SurfaceView doesn't support rotation (" + degree + ")!\n");
     }
 
     @Override
@@ -253,6 +255,7 @@ public class SurfaceRenderView extends SurfaceView implements IRenderView {
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format,
                                    int width, int height) {
+            LogUtil.d("lingtao", "SurfaceCallback->surfaceChanged():" + "什么玩意");
             mSurfaceHolder = holder;
             mIsFormatChanged = true;
             mFormat = format;
