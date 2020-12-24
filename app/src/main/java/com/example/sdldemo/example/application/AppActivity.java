@@ -31,7 +31,6 @@ import androidx.core.content.ContextCompat;
 
 import com.example.sdldemo.R;
 import com.example.sdldemo.example.activities.RecentMediaActivity;
-import com.example.sdldemo.example.activities.SampleMediaActivity;
 import com.example.sdldemo.example.activities.SettingsActivity;
 
 
@@ -89,7 +88,7 @@ public class AppActivity extends AppCompatActivity {
         } else if (id == R.id.action_recent) {
             RecentMediaActivity.intentTo(this);
         } else if (id == R.id.action_sample) {
-            SampleMediaActivity.intentTo(this);
+//            SampleMediaActivity.intentTo(this);
         }
 
         return super.onOptionsItemSelected(item);

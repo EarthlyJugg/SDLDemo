@@ -42,6 +42,8 @@ public class TracksFragment extends Fragment {
     private ListView mTrackListView;
     private TrackAdapter mAdapter;
 
+    private static final String TAG = "TracksFragment_log";
+
     public static TracksFragment newInstance() {
         TracksFragment f = new TracksFragment();
         return f;
@@ -71,6 +73,7 @@ public class TracksFragment extends Fragment {
             int selectedVideoTrack = trackHolder.getSelectedTrack(ITrackInfo.MEDIA_TRACK_TYPE_VIDEO);
             int selectedAudioTrack = trackHolder.getSelectedTrack(ITrackInfo.MEDIA_TRACK_TYPE_AUDIO);
             int selectedSubtitleTrack = trackHolder.getSelectedTrack(ITrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT);
+
             if (selectedVideoTrack >= 0)
                 mTrackListView.setItemChecked(selectedVideoTrack, true);
             if (selectedAudioTrack >= 0)
@@ -84,18 +87,22 @@ public class TracksFragment extends Fragment {
                     TrackItem trackItem = (TrackItem) mTrackListView.getItemAtPosition(position);
                     for (int i = 0; i < mAdapter.getCount(); ++i) {
                         TrackItem compareItem = mAdapter.getItem(i);
-                        if (compareItem.mIndex == trackItem.mIndex)
+                        if (compareItem.mIndex == trackItem.mIndex) {
                             continue;
+                        }
 
                         if (compareItem.mTrackInfo.getTrackType() != trackItem.mTrackInfo.getTrackType())
                             continue;
 
-                        if (mTrackListView.isItemChecked(i))
+                        if (mTrackListView.isItemChecked(i)) {
                             mTrackListView.setItemChecked(i, false);
+                        }
                     }
                     if (mTrackListView.isItemChecked(position)) {
+                        Log.d(TAG, "onItemClick: 选择了：" + trackItem.mIndex);
                         trackHolder.selectTrack(trackItem.mIndex);
                     } else {
+                        Log.d(TAG, "onItemClick: 取消：" + trackItem.mIndex);
                         trackHolder.deselectTrack(trackItem.mIndex);
                     }
                 }
@@ -107,8 +114,11 @@ public class TracksFragment extends Fragment {
 
     public interface ITrackHolder {
         ITrackInfo[] getTrackInfo();
+
         int getSelectedTrack(int trackType);
+
         void selectTrack(int stream);
+
         void deselectTrack(int stream);
     }
 
@@ -142,8 +152,9 @@ public class TracksFragment extends Fragment {
             mTrackHolder = trackHolder;
             mTrackInfos = mTrackHolder.getTrackInfo();
             if (mTrackInfos != null) {
-                for(ITrackInfo trackInfo: mTrackInfos) {
+                for (ITrackInfo trackInfo : mTrackInfos) {
                     int index = getCount();
+                    Log.d(TAG, "setTrackHolder: " + index);
                     TrackItem item = new TrackItem(index, trackInfo);
                     add(item);
                 }

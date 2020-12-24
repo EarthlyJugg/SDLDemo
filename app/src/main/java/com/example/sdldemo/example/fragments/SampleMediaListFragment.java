@@ -33,14 +33,19 @@ import androidx.fragment.app.Fragment;
 
 import com.example.sdldemo.R;
 import com.example.sdldemo.example.activities.VideoActivity;
+import com.example.sdldemo.example.activities.VideoActivity2;
 
 
 public class SampleMediaListFragment extends Fragment {
     private ListView mFileListView;
     private SampleMediaAdapter mAdapter;
+    private int type;
 
-    public static SampleMediaListFragment newInstance() {
+    public static SampleMediaListFragment newInstance(int type) {
         SampleMediaListFragment f = new SampleMediaListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("type", type);
+        f.setArguments(bundle);
         return f;
     }
 
@@ -57,7 +62,7 @@ public class SampleMediaListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         final Activity activity = getActivity();
-
+        type = getArguments().getInt("type");
         mAdapter = new SampleMediaAdapter(activity);
         mFileListView.setAdapter(mAdapter);
         mFileListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -66,7 +71,11 @@ public class SampleMediaListFragment extends Fragment {
                 SampleMediaItem item = mAdapter.getItem(position);
                 String name = item.mName;
                 String url = item.mUrl;
-                VideoActivity.intentTo(activity, url, name);
+                if (type == 1) {
+                    VideoActivity.intentTo(activity, url, name);
+                } else {
+                    VideoActivity2.intentTo(activity, url, name);
+                }
             }
         });
 
@@ -80,12 +89,41 @@ public class SampleMediaListFragment extends Fragment {
         mAdapter.addItem("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear1/prog_index.m3u8", "bipbop advanced 416x234 @ 265 kbps");
         mAdapter.addItem("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear2/prog_index.m3u8", "bipbop advanced 640x360 @ 580 kbps");
         mAdapter.addItem("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear3/prog_index.m3u8", "bipbop advanced 960x540 @ 910 kbps");
-        mAdapter.addItem("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear4/prog_index.m3u8", "bipbop advanced 1289x720 @ 1 Mbps");
+        mAdapter.addItem("http://devimages.apple.com.edgekey.net/AssetFileDescriptorstreaming/examples/bipbop_16x9/gear4/prog_index.m3u8", "bipbop advanced 1289x720 @ 1 Mbps");
         mAdapter.addItem("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear5/prog_index.m3u8", "bipbop advanced 1920x1080 @ 2 Mbps");
-//        mAdapter.addItem("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear0/prog_index.m3u8", "bipbop advanced 22.050Hz stereo @ 40 kbps");
         mAdapter.addItem("http://ips.ifeng.com/video19.ifeng.com/video09/2014/06/16/1989823-102-086-0009.mp4", "美食节目");
+        mAdapter.addItem("/sdcard/weixinmp4.mp4", "本地视频");
+        mAdapter.addItem("/sdcard/崇拜.mp4", "崇拜.mp4");
+        mAdapter.addItem("/sdcard/女儿情.mp4", "女儿情.mp4");
+        mAdapter.addItem("rtmp://58.200.131.2:1935/livetv/hunantv", "播放rtmp");
+        mAdapter.addItem("http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8", "hls-CCTV1高清");
+        mAdapter.addItem("http://ivi.bupt.edu.cn/hls/cctv3hd.m3u8", "hls-CCTV3高清");
+        mAdapter.addItem("http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8", "hls-CCTV5高清");
+        mAdapter.addItem("http://ivi.bupt.edu.cn/hls/cctv5phd.m3u8", "hls-CCTV5+高清");
+        mAdapter.addItem("http://ivi.bupt.edu.cn/hls/cctv6hd.m3u8", "hls-CCTV6高清");
+
+
+//        mAdapter.addItem("/sdcard/weixinmp4.mp4", "微信视频");
+//        mAdapter.addItem("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear0/prog_index.m3u8", "bipbop advanced 22.050Hz stereo @ 40 kbps");
+//        mAdapter.addItem("assets://hellolele.mp3", "mp3音乐");
+//        mAdapter.addItem("assets://hellolele2.amr", "amr音乐");
+//        mAdapter.addItem("sdcard/video3.mp4", "mp4音乐");
 
     }
+    //CCTV1高清： http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8
+    //
+    //CCTV3高清： http://ivi.bupt.edu.cn/hls/cctv3hd.m3u8
+    //
+    //CCTV5高清： http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8
+    //
+    //CCTV5+高清： http://ivi.bupt.edu.cn/hls/cctv5phd.m3u8
+    //
+    //CCTV6高清： http://ivi.bupt.edu.cn/hls/cctv6hd.m3u8
+    //
+    //作者：i舒克
+    //链接：https://www.jianshu.com/p/20f9e9bb89aa
+    //来源：简书
+    //著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
     final class SampleMediaItem {
         String mUrl;

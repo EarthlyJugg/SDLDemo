@@ -2,10 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".example.activities.FileExplorerActivity">
+    android:orientation="vertical">
 
-    <include layout="@layout/widget_toolbar" />
+    <!--    <include layout="@layout/widget_toolbar" />-->
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/onFinish1"
+        android:text="返回" />
 
     <FrameLayout
         android:id="@+id/body"

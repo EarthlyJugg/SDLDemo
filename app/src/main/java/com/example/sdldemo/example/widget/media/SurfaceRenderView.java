@@ -22,7 +22,6 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -255,7 +254,7 @@ public class SurfaceRenderView extends SurfaceView implements IRenderView {
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format,
                                    int width, int height) {
-            LogUtil.d("lingtao", "SurfaceCallback->surfaceChanged():" + "什么玩意");
+            LogUtil.d("lingtao", "SurfaceCallback->surfaceChanged():" );
             mSurfaceHolder = holder;
             mIsFormatChanged = true;
             mFormat = format;

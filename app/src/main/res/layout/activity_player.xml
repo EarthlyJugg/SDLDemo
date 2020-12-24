@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:background="#000000">
 
-        <com.example.sdldemo.example.widget.media.IjkVideoView
+        <com.example.sdldemo.example.widget.media.IjkVideoView2
             android:id="@+id/video_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -36,7 +36,7 @@
             android:layout_gravity="right|center_vertical"
             android:background="@color/ijk_transparent_dark"
             android:padding="8dp"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -47,6 +47,63 @@
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             tools:context=".toolbar_widget" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:id="@+id/tempImage"
+            android:layout_height="100dp"
+            android:layout_gravity="center_vertical|right" />
+
+        <LinearLayout
+            android:layout_width="100dp"
+            android:orientation="vertical"
+            android:visibility="visible"
+            android:layout_gravity="bottom"
+            android:layout_height="wrap_content">
+
+
+            <Button
+                android:layout_width="match_parent"
+                android:onClick="onFinishClick"
+                android:layout_height="wrap_content"
+                android:text="返回" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="audioAdd"
+                android:text="增大音量" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="audioSub"
+                android:text="减少音量" />
+
+
+            <Button
+                android:id="@+id/getFrame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="截图" />
+
+
+            <Button
+                android:id="@+id/startVideo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="开始录制" />
+
+
+            <Button
+                android:id="@+id/stopVideo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:text="结束录制" />
+
+        </LinearLayout>
+
     </FrameLayout>
 
     <!-- The navigation drawer -->

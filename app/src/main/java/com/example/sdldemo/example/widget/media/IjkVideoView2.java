@@ -22,6 +22,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -53,7 +54,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import tv.danmaku.ijk.media.exo.IjkExoMediaPlayer;
 import tv.danmaku.ijk.media.player.AndroidMediaPlayer;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -323,6 +323,7 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
      */
     @TargetApi(Build.VERSION_CODES.M)
     private void openVideo() {
+
         LogUtil.d("lingtao2", "IjkVideoView->openVideo():" + "");
         if (mUri == null || mSurfaceHolder == null) {
             // not ready for playback just yet, will try again later
@@ -360,14 +361,29 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
             mMediaPlayer.setOnTimedTextListener(mOnTimedTextListener);
             mCurrentBufferPercentage = 0;
             String scheme = mUri.getScheme();
+            Log.d(TAG, "openVideo: url=" + mUri.toString());
+            Log.d(TAG, "openVideo: url=" + mUri.getPath());
+            Log.d(TAG, "openVideo: scheme=" + scheme);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&//23
                     mSettings.getUsingMediaDataSource() &&
                     (TextUtils.isEmpty(scheme) || scheme.equalsIgnoreCase("file"))) {
                 IMediaDataSource dataSource = new FileMediaDataSource(new File(mUri.toString()));
                 mMediaPlayer.setDataSource(dataSource);
+                Log.d(TAG, "openVideo: " + "equalsIgnoreCase");
+//            } else if (scheme.equalsIgnoreCase("assets")) {
+//                String authority = mUri.getAuthority();
+//                Log.d(TAG, "openVideo: " + mUri.toString());
+//                Log.d(TAG, "openVideo: " + authority);
+//                AssetManager assets = context.getAssets();
+//                AssetFileDescriptor afd = assets.openFd(authority);
+//                RawDataSourceProvider sourceProvider = new RawDataSourceProvider(afd);
+//                mMediaPlayer.setDataSource(sourceProvider);
+
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 mMediaPlayer.setDataSource(mAppContext, mUri, mHeaders);
+                Log.d(TAG, "openVideo: 版本大于14");
             } else {
+                Log.d(TAG, "openVideo: 其他");
                 mMediaPlayer.setDataSource(mUri.toString());
             }
             bindSurfaceHolder(mMediaPlayer, mSurfaceHolder);
@@ -446,7 +462,9 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
         public void onPrepared(IMediaPlayer mp) {
             LogUtil.d("lingtaoListener", "IjkVideoView->onPrepared():" + "准备完成了");
             mPrepareEndTime = System.currentTimeMillis();
-            mHudViewHolder.updateLoadCost(mPrepareEndTime - mPrepareStartTime);
+            if (mHudViewHolder != null) {
+                mHudViewHolder.updateLoadCost(mPrepareEndTime - mPrepareStartTime);
+            }
             mCurrentState = STATE_PREPARED;
 
             // Get the capabilities of the player for that_this) stream
@@ -625,7 +643,7 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
             new IMediaPlayer.OnBufferingUpdateListener() {
                 public void onBufferingUpdate(IMediaPlayer mp, int percent) {
 
-                    LogUtil.d("LINGTAOLISTENER", "IjkVideoView->onBufferingUpdate():" + percent);
+//                    LogUtil.d("LINGTAOLISTENER", "IjkVideoView->onBufferingUpdate():" + percent);
                     mCurrentBufferPercentage = percent;
                 }
             };
@@ -636,7 +654,9 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
         public void onSeekComplete(IMediaPlayer mp) {
             LogUtil.d("lingtaoListener", "IjkVideoView->onSeekComplete():" + "");
             mSeekEndTime = System.currentTimeMillis();
-            mHudViewHolder.updateSeekCost(mSeekEndTime - mSeekStartTime);
+            if (mHudViewHolder != null) {
+                mHudViewHolder.updateSeekCost(mSeekEndTime - mSeekStartTime);
+            }
         }
     };
 
@@ -991,21 +1011,18 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
     private void initRenders() {
         mAllRenders.clear();
         if (mSettings.getEnableSurfaceView()) {
-            LogUtil.d("lingtao", "IjkVideoView->initRenders():" + "getEnableSurfaceView");
             mAllRenders.add(RENDER_SURFACE_VIEW);
         }
         if (mSettings.getEnableTextureView() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            LogUtil.d("lingtao", "IjkVideoView->initRenders():" + "getEnableTextureView");
             mAllRenders.add(RENDER_TEXTURE_VIEW);
         }
         if (mSettings.getEnableNoView()) {
-            LogUtil.d("lingtao", "IjkVideoView->initRenders():" + "getEnableNoView");
             mAllRenders.add(RENDER_NONE);
         }
 
         if (mAllRenders.isEmpty()) {
-            LogUtil.d("lingtao", "IjkVideoView->initRenders():" + "isEmpty");
-            mAllRenders.add(RENDER_SURFACE_VIEW);
+//            mAllRenders.add(RENDER_SURFACE_VIEW);
+            mAllRenders.add(RENDER_TEXTURE_VIEW);
         }
         mCurrentRender = mAllRenders.get(mCurrentRenderIndex);
         setRender(mCurrentRender);
@@ -1075,6 +1092,7 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
 
     /**
      * 创建播放器
+     *
      * @param playerType
      * @return
      */
@@ -1084,8 +1102,6 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
 
         switch (playerType) {
             case Settings.PV_PLAYER__IjkExoMediaPlayer: {
-                IjkExoMediaPlayer IjkExoMediaPlayer = new IjkExoMediaPlayer(mAppContext);
-                mediaPlayer = IjkExoMediaPlayer;
             }
             break;
             case Settings.PV_PLAYER__AndroidMediaPlayer: {
@@ -1095,11 +1111,10 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
             break;
             case Settings.PV_PLAYER__IjkMediaPlayer:
             default: {
-                LogUtil.d("lingtao2", "IjkVideoView->createPlayer():" + "default");
                 IjkMediaPlayer ijkMediaPlayer = null;
                 if (mUri != null) {
                     ijkMediaPlayer = new IjkMediaPlayer();
-                    ijkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG);
+                    ijkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_ERROR);
 
                     if (mSettings.getUsingMediaCodec()) {
                         LogUtil.d("lingtao2", "IjkVideoView->createPlayer():" + "getUsingMediaCodec");
@@ -1119,14 +1134,12 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
                     }
 
                     if (mSettings.getUsingOpenSLES()) {
-                        LogUtil.d("lingtao2", "IjkVideoView->createPlayer():" + "getUsingOpenSLES");
                         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 1);
                     } else {
                         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 0);
                     }
 
                     String pixelFormat = mSettings.getPixelFormat();
-                    LogUtil.d("lingtao2", "IjkVideoView->createPlayer()------:" + pixelFormat);
                     if (TextUtils.isEmpty(pixelFormat)) {
                         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32);
                     } else {
@@ -1139,6 +1152,7 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
 
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
                 }
+                openRtsp(ijkMediaPlayer);
                 mediaPlayer = ijkMediaPlayer;
             }
             break;
@@ -1150,6 +1164,28 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
         }
 
         return mediaPlayer;
+    }
+
+    private void openRtsp(IjkMediaPlayer ijkMediaPlayer) {
+
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
+
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "rtsp_transport", "tcp");
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "rtsp_flags", "prefer_tcp");
+
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "allowed_media_types", "video"); //根据媒体类型来配置
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", 20000);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "buffer_size", 1316);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "infbuf", 1);  // 无限读
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "analyzemaxduration", 100L);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 10240L);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1L);
+        //  关闭播放器缓冲，这个必须关闭，否则会出现播放一段时间后，一直卡主，控制台打印 FFP_MSG_BUFFERING_START
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0L);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 2L);
+
     }
 
     //-------------------------
@@ -1185,8 +1221,9 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
     // Extend: Background
     //-------------------------
     public void showMediaInfo() {
-        if (mMediaPlayer == null)
+        if (mMediaPlayer == null) {
             return;
+        }
 
         int selectedVideoTrack = MediaPlayerCompat.getSelectedTrack(mMediaPlayer, ITrackInfo.MEDIA_TRACK_TYPE_VIDEO);
         int selectedAudioTrack = MediaPlayerCompat.getSelectedTrack(mMediaPlayer, ITrackInfo.MEDIA_TRACK_TYPE_AUDIO);
@@ -1325,7 +1362,37 @@ public class IjkVideoView2 extends FrameLayout implements MediaController.MediaP
         MediaPlayerCompat.deselectTrack(mMediaPlayer, stream);
     }
 
-    public int getSelectedTrack(int trackType) {
+    public int getSelectedTrack(int trackType) {//1、2
         return MediaPlayerCompat.getSelectedTrack(mMediaPlayer, trackType);
     }
+
+    public Bitmap getBitmap() {
+        if (mMediaPlayer == null)
+            return null;
+        if (mRenderView instanceof TextureRenderView) {
+            Bitmap bitmap = ((TextureRenderView) mRenderView).getBitmap();
+            return bitmap;
+        }
+        return null;
+    }
+
+    public int startRecord(String recordVideoPath) {
+        return mMediaPlayer.startRecord(recordVideoPath);
+    }
+
+    public int stopRecord() {
+        return mMediaPlayer.stopRecord();
+    }
+
+    public boolean isRecord() {
+        return mMediaPlayer.isRecord() > 0;
+    }
+
+
+    public boolean getFrameBitmap(String saveFile) {
+        //这里c层代码是异步的，返回1 只是 c层接收到截图指令
+        return mMediaPlayer.getCurrentFrame(saveFile) == 1;
+    }
+
+
 }

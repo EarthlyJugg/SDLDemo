@@ -45,7 +45,8 @@ public class MediaPlayerCompat {
         IjkMediaPlayer ijkMediaPlayer = null;
         if (mp == null) {
             return null;
-        } if (mp instanceof IjkMediaPlayer) {
+        }
+        if (mp instanceof IjkMediaPlayer) {
             ijkMediaPlayer = (IjkMediaPlayer) mp;
         } else if (mp instanceof MediaPlayerProxy && ((MediaPlayerProxy) mp).getInternalMediaPlayer() instanceof IjkMediaPlayer) {
             ijkMediaPlayer = (IjkMediaPlayer) ((MediaPlayerProxy) mp).getInternalMediaPlayer();
@@ -69,8 +70,9 @@ public class MediaPlayerCompat {
 
     public static int getSelectedTrack(IMediaPlayer mp, int trackType) {
         IjkMediaPlayer ijkMediaPlayer = getIjkMediaPlayer(mp);
-        if (ijkMediaPlayer == null)
+        if (ijkMediaPlayer == null) {
             return -1;
+        }
         return ijkMediaPlayer.getSelectedTrack(trackType);
     }
 }

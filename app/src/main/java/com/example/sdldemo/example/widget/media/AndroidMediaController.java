@@ -62,8 +62,9 @@ public class AndroidMediaController extends MediaController implements IMediaCon
     @Override
     public void show() {
         super.show();
-        if (mActionBar != null)
+        if (mActionBar != null) {
             mActionBar.show();
+        }
     }
 
     @Override

@@ -4,12 +4,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+
+
 
     <Button
-        android:onClick="IjkPlayer"
+        android:id="@+id/IjkPlayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="IjkPlayer" />
+        android:visibility="visible"
+        android:onClick="IjkPlayer"
+        android:text="准备播放" />
+
+    <Button
+        android:id="@+id/intoVedio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:onClick="IjkPlayer2"
+        android:text="跳转播放界面" />
+
+    <Button
+        android:id="@+id/singlePlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="单个屏幕播放" />
+
+    <Button
+        android:id="@+id/doublePlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="双屏幕视频" />
 
 </LinearLayout>
